@@ -21,7 +21,7 @@ const SOUS_TITRE = "Apport d'affaires & biens d'exception";
 // 2. Créez un modèle avec les variables {{objet}}, {{ref}}, {{type}},
 //    {{categorie}}, {{titre}}, {{nom}}, {{email}}, {{telephone}}, {{details}}
 // 3. Renseignez les 3 identifiants. Laissez vide pour désactiver.
-const EMAILJS = { serviceId: "", templateId: "", publicKey: "" };
+const EMAILJS = { serviceId: "service_t3oijbl", templateId: "template_yxpwjat", publicKey: "zU42GUVOgyWeucXpG" };
 
 // Alerte automatique quand un dépôt correspond à un dossier existant
 // (score de rapprochement minimal pour déclencher l'e-mail)
@@ -301,7 +301,7 @@ function compresserImage(fichier) {
 async function envoyerEmail(params) {
   if (!EMAILJS.serviceId || !EMAILJS.templateId || !EMAILJS.publicKey) return;
   try {
-    await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    const reponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -311,7 +311,13 @@ async function envoyerEmail(params) {
         template_params: params,
       }),
     });
-  } catch { /* ne bloque jamais le dépôt */ }
+    if (!reponse.ok) {
+      const texte = await reponse.text();
+      console.warn("EmailJS — échec de l'envoi :", reponse.status, texte);
+    }
+  } catch (e) {
+    console.warn("EmailJS — erreur réseau :", e);
+  }
 }
 
 function notifierNouveauDepot(depot) {
@@ -2146,4 +2152,3 @@ export default function App() {
     </LangContext.Provider>
   );
 }
-
